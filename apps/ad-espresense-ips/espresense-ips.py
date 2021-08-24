@@ -24,7 +24,7 @@ class ESPresenseIps(hass.Hass):
 
         self.mqtt = self.get_plugin_api("MQTT")
         for room, pos in self.args["rooms"].items():
-            t = f"{self.args.get('rooms_channel', 'espresense/rooms')}/{room}"
+            t = f"{self.args.get('rooms_topic', 'espresense/rooms')}/{room}"
             self.log(f"Subscribing to topic {t}")
             self.mqtt.mqtt_subscribe(t)
             self.mqtt.listen_event(self.mqtt_message, "MQTT_MESSAGE", topic=t)
