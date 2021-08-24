@@ -1,6 +1,6 @@
 # ESPresense - Ips Solver
 
-Appdaemon app that attempts to solve indoor position using multiple ESPresense stations
+Appdaemon app that attempts to solve indoor position (x,y,z) with multiple ESPresense stations using trilateralization
 
 For this to work you need to add this to your appdaemon config:
 ```
