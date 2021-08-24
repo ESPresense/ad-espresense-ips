@@ -18,26 +18,24 @@ import json
 
 class ESPresenseIps(hass.Hass):
     def initialize(self):
-        self.mqtt = self.get_plugin_api("MQTT")
-        self.log("init")
-        self.devices={}
+        self.devices = {}
         for device in self.args["devices"]:
-            for room, pos in self.args["rooms"].items():
-                self.log(f"{self.args['channel']}/{room}/{device}")
-                self.mqtt.mqtt_subscribe(f"{self.args['channel']}/{room}/{device}")
-                self.mqtt.listen_event(self.mqtt_message, "MQTT_MESSAGE", topic=f"{self.args['channel']}/{room}/{device}")
-                self.devices.setdefault(device,{}).setdefault(room,{})["pos"]=pos
-        self.log(f"devices: {self.devices}")
+          self.devices.setdefault(device["id"],{})["name"]=device["name"]
+
+        self.mqtt = self.get_plugin_api("MQTT")
+        for room, pos in self.args["rooms"].items():
+            t = f"{self.args.get('rooms_channel', 'espresense/rooms')}/{room}"
+            self.log(f"Subscribing to topic {t}")
+            self.mqtt.mqtt_subscribe(t)
+            self.mqtt.listen_event(self.mqtt_message, "MQTT_MESSAGE", topic=t)
 
     def mqtt_message(self, event_name, data, *args, **kwargs):
         """Process a message sent on the MQTT Topic."""
         topic = data.get("topic")
         payload = data.get("payload")
-        self.log(f"{topic} payload: {payload}", level="DEBUG")
 
         topic_path = topic.split("/")
-        room = topic_path[-2].lower()
-        id = topic_path[-1].lower()
+        room = topic_path[-1].lower()
 
         payload_json = {}
         try:
@@ -45,10 +43,15 @@ class ESPresenseIps(hass.Hass):
         except ValueError:
             pass
 
+        id = payload_json.get("id")
+        name = payload_json.get("name")
         distance = payload_json.get("distance")
-        self.log(f"{room} {distance}", level="DEBUG")
-        device = self.devices[id]
-        device[room]["distance"] = distance
+        self.log(f"{id} {room} {distance}", level="DEBUG")
+
+        device = self.devices.setdefault(id,{})
+        dr = device.setdefault(room,{})
+        dr["pos"] = self.args["rooms"][room]
+        dr["distance"] = distance
 
         distance_to_stations=[]
         stations_coordinates=[]
@@ -57,12 +60,15 @@ class ESPresenseIps(hass.Hass):
                 distance_to_stations.append(device[r]["distance"])
                 stations_coordinates.append(device[r]["pos"])
 
-        pos = position_solve(distance_to_stations, np.array(stations_coordinates)).tolist()
-        #self.call_service("device_tracker/see", dev_id = id + "_see", gps = [self.config["latitude"]+(pos[1]/111111), self.config["longitude"]+(pos[0]/111111)], location_name="home")
-        #self.log(f"{room} {id}: {pos}")
+        name = device.get("name", name)
+        if (len(name)>0):
+            pos = position_solve(distance_to_stations, np.array(stations_coordinates)).tolist()
+            #self.call_service("device_tracker/see", dev_id = id + "_see", gps = [self.config["latitude"]+(pos[1]/111111), self.config["longitude"]+(pos[0]/111111)], location_name="home")
+            #self.log(f"{room} {id}: {pos}")
 
-        self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'ips')}/{id}", json.dumps({"x":pos[0],"y":pos[1],"z":pos[2]}));
-        self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'location')}/{id}", json.dumps({"longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2])}));
+
+            self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{id}", json.dumps({"name":name, "x":round(pos[0],2),"y":round(pos[1],2),"z":round(pos[2],2)}));
+            self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'espresense/location')}/{id}", json.dumps({"name":name, "longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2])}));
 
 def position_solve(distances_to_station, stations_coordinates):
     def error(x, c, r):
