@@ -7,7 +7,7 @@ espresense-position:
   pluggins:
   - HASS
   - MQTT
-  rooms_channel: espresense/rooms
+  rooms_topic: espresense/rooms
   ips_topic: ips
   location_topic: location
   rooms:
