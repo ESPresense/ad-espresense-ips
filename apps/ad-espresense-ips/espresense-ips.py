@@ -49,27 +49,29 @@ class ESPresenseIps(hass.Hass):
         distance = payload_json.get("distance")
         self.log(f"{id} {room} {distance}", level="DEBUG")
 
-        device = self.devices.setdefault("id",{"rooms":{}})
+        device = self.devices.setdefault(id,{})
         device["measures"] = device.get("measures", 0) + 1
-        dr = device["rooms"].setdefault(room,{"pos":self.args["rooms"][room]})
-        dr["distance"] = distance
 
-        distance_to_stations=[]
-        stations_coordinates=[]
-        for r in device["rooms"]:
-            if "distance" in device["rooms"][r]:
-                distance_to_stations.append(device["rooms"][r]["distance"])
-                stations_coordinates.append(device["rooms"][r]["pos"])
+        if (room in self.args["rooms"]):
+            dr = device.setdefault("rooms",{}).setdefault(room,{"pos":self.args["rooms"][room]})
+            dr["distance"] = distance
 
-        name = device.get("name", name)
-        if (name) and len(distance_to_stations)>2:
-            device["x0"] = position_solve(distance_to_stations, np.array(stations_coordinates), device.get("x0", None))
-            pos = device["x0"].tolist()
-            #self.call_service("device_tracker/see", dev_id = id + "_see", gps = [self.config["latitude"]+(pos[1]/111111), self.config["longitude"]+(pos[0]/111111)], location_name="home")
-            #self.log(f"{room} {id}: {pos}")
+            distance_to_stations=[]
+            stations_coordinates=[]
+            for r in device["rooms"]:
+                if "distance" in device["rooms"][r]:
+                    distance_to_stations.append(device["rooms"][r]["distance"])
+                    stations_coordinates.append(device["rooms"][r]["pos"])
 
-            self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{id}", json.dumps({"name":name, "x":round(pos[0],2),"y":round(pos[1],2),"z":round(pos[2],2), "fixes":len(distance_to_stations),"measures":device["measures"]}));
-            self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'espresense/location')}/{id}", json.dumps({"name":name, "longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2]), "fixes":len(distance_to_stations),"measures":device["measures"]}));
+            name = device.get("name", name)
+            if (name) and len(distance_to_stations)>2:
+                device["x0"] = position_solve(distance_to_stations, np.array(stations_coordinates), device.get("x0", None))
+                pos = device["x0"].tolist()
+                #self.call_service("device_tracker/see", dev_id = id + "_see", gps = [self.config["latitude"]+(pos[1]/111111), self.config["longitude"]+(pos[0]/111111)], location_name="home")
+                #self.log(f"{room} {id}: {pos}")
+
+                self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{id}", json.dumps({"name":name, "x":round(pos[0],2),"y":round(pos[1],2),"z":round(pos[2],2), "fixes":len(distance_to_stations),"measures":device["measures"]}));
+                self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'espresense/location')}/{id}", json.dumps({"name":name, "longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2]), "fixes":len(distance_to_stations),"measures":device["measures"]}));
 
 def position_solve(distances_to_station, stations_coordinates, last):
     def error(x, c, r):
