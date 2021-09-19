@@ -12,9 +12,14 @@ python_packages:
   - scipy
 ```
 
-You need to have both MQTT and HASS added to appdaemon as well:
+You need to have both MQTT and HASS added to `appdaemon.yaml`:
 
 ```yaml
+appdaemon:
+  time_zone: America/New_York
+  latitude: 40.234223
+  longitude: -75.23456
+  elevation: 146
   plugins:
     HASS:
       type: hass
@@ -32,7 +37,7 @@ You need to have both MQTT and HASS added to appdaemon as well:
       will_topic: appdaemon
 ```
 
-Finally you need something like this in your apps:
+Finally you need something like this in your `app.yaml`:
 ```yaml
 ESPresenseIps:
   module: espresense-ips
