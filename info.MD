@@ -1,27 +1,23 @@
 ## App configuration
 
 ```yaml
-espresense-position:
-  module: espresense-position
-  class: ESPrescencePosition
+ESPresenseIps:
+  module: espresense-ips
+  class: ESPresenseIps
   pluggins:
-  - HASS
-  - MQTT
-  rooms_topic: espresense/rooms
-  ips_topic: ips
-  location_topic: location
+    - HASS
+    - MQTT
   rooms:
-    master: [0, 6, 4]
-    garage: [0, 8, 0.5]
+    garage: [0, 8, 0.4]
     office: [5, 1.5, 0.5]
     family: [0, 0, 0]
     kitchen: [8, 6, 0.5]
     dining: [16, 0, 0.5]
   devices:
-    - id: apple:1005:9-26
-      name: Darrell Watch
-      timeout: 30
-      away_timeout: 120
+  - id: tile:xxx
+    name: AirPods
+    timeout: 30
+    away_timeout: 120
 ```
 
 key | optional | type | default | description
