@@ -1,8 +1,12 @@
 # ESPresense - Ips Solver
 
-Appdaemon app that attempts to solve indoor position (x,y,z) with multiple ESPresense stations using trilateralization.
+Appdaemon app that attempts to solve indoor position (x,y,z) with multiple ESPresense stations using multilateralization.
 
 This uses numpy/scipy with a "Nelder-Mead" minimize of total error.  Error is the amount of difference a guessed position has between the calced distance to a base station and the actual measured distance to the base station (via ESPresense rssi).  Various x,y,z are tried and the position with the least error is where we guess it is.
+
+This requires at least 3 ESPresense nodes that can get a "fix" on the particular device.  The more devices the better.  To get a decently accurate position you need at least 5 or 6.  But this can find the location of something even if the particular room doesn't have a base station (You can put nodes on the perimeter of your house instead of the "center" of rooms).  We need futher work to actually determine if the item is actually in a particular room (we'll need some kind of floorplan).
+
+## Installation
 
 For this to work you need to add this to your appdaemon Add-On config:
 ```yaml
