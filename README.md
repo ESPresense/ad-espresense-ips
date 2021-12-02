@@ -10,6 +10,8 @@ This requires at least 3 ESPresense nodes that can get a "fix" on the particular
 
 For this to work you need to add this to your appdaemon Add-On config:
 ```yaml
+init_commands:
+  - apk add --update python3 python3-dev gfortran py3-pip build-base py3-numpy
 system_packages:
   - py3-numpy
   - py3-scipy
