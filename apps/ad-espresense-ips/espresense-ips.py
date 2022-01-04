@@ -21,7 +21,6 @@ class ESPresenseIps(hass.Hass):
         self.devices = {}
         for device in self.args["devices"]:
           self.devices.setdefault(device["id"],{})["name"]=device["name"]
-
         self.mqtt = self.get_plugin_api("MQTT")
         for room, pos in self.args["rooms"].items():
             t = f"{self.args.get('rooms_topic', 'espresense/rooms')}/{room}"
@@ -69,9 +68,9 @@ class ESPresenseIps(hass.Hass):
                 pos = device["x0"].tolist()
                 #self.call_service("device_tracker/see", dev_id = id + "_see", gps = [self.config["latitude"]+(pos[1]/111111), self.config["longitude"]+(pos[0]/111111)], location_name="home")
                 #self.log(f"{room} {id}: {pos}")
-
-                self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{id}", json.dumps({"name":name, "x":round(pos[0],2),"y":round(pos[1],2),"z":round(pos[2],2), "fixes":len(distance_to_stations),"measures":device["measures"]}));
-                self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'espresense/location')}/{id}", json.dumps({"name":name, "longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2]), "fixes":len(distance_to_stations),"measures":device["measures"]}));
+                roomname = room_solve(self,round(pos[0],2,),round(pos[1],2))
+                self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{id}", json.dumps({"name":name, "x":round(pos[0],2),"y":round(pos[1],2),"z":round(pos[2],2), "fixes":len(distance_to_stations),"measures":device["measures"],"currentroom":roomname}))
+                self.mqtt.mqtt_publish(f"{self.args.get('location_topic', 'espresense/location')}/{id}", json.dumps({"name":name, "longitude":(self.config["longitude"]+(pos[0]/111111)),"latitude":(self.config["latitude"]+(pos[1]/111111)),"elevation":(self.config.get("elevation","0")+pos[2]), "fixes":len(distance_to_stations),"measures":device["measures"]}))
 
 def position_solve(distances_to_station, stations_coordinates, last):
     def error(x, c, r):
@@ -91,3 +90,11 @@ def position_solve(distances_to_station, stations_coordinates, last):
         method="Nelder-Mead",
         options={'xatol': 0.001, 'fatol': 0.001, 'adaptive': True}
     ).x
+
+def room_solve(self, xpos, ypos):
+    item = "none"
+    for rooms in self.args["roomplans"]:
+        if rooms["x1"] < float(xpos) < rooms["x2"] and rooms["y1"] < float(ypos) < rooms["y2"]:
+            item = rooms["name"]
+            print("success")
+    return item
