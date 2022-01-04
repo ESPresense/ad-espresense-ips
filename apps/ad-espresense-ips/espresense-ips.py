@@ -92,8 +92,7 @@ def position_solve(distances_to_station, stations_coordinates, last):
     ).x
 
 def room_solve(self, xpos, ypos):
-    item = "none"
     for rooms in self.args["roomplans"]:
         if rooms["x1"] < float(xpos) < rooms["x2"] and rooms["y1"] < float(ypos) < rooms["y2"]:
-            item = rooms["name"]
-            return item
+            return rooms["name"]
+    return "none"
