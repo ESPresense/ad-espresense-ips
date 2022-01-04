@@ -96,5 +96,4 @@ def room_solve(self, xpos, ypos):
     for rooms in self.args["roomplans"]:
         if rooms["x1"] < float(xpos) < rooms["x2"] and rooms["y1"] < float(ypos) < rooms["y2"]:
             item = rooms["name"]
-            print("success")
-    return item
+            return item
