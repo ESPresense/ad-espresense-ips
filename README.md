@@ -90,3 +90,17 @@ ESPresenseIps:
     y2: 13.5
     x2: 5.0
 ```
+
+## [FloorPlan creator](https://github.com/stan69b/ESPresenseIPS-Floorplan-Creator)
+
+This application allows one to :
+
+* Create a floorplan/Rooms easily
+* Name each room
+* Add your ESP32 devices inside each room
+* Add z values for ESP32's, coverage radius and coverage circle color
+* Show coverage of each ESP32 devices to see the exact coverage in each rooms
+* Show coverage of ESP32 while you place them so you can find what are the best places.
+* Export your floorplan to yaml format with room coordinates and esp32 devices coordinates (just copy past inside app.js)
+
+
