@@ -1,0 +1,4 @@
+config
+appdaemon.yaml
+apps/apps.yaml
+*.pyc
