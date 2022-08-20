@@ -50,11 +50,10 @@ ESPresenseIps:
     - HASS
     - MQTT
   rooms:
-    garage: [0, 8, 0.4]
-    office: [5, 1.5, 0.5]
-    family: [0, 0, 0]
-    kitchen: [8, 6, 0.5]
-    dining: [16, 0, 0.5]
+    office: [0, 0, 0]
+    living_room: [9.44, 0, 0]
+    bedroom: [9.44, 6.98, 0]
+    kitchen: [3.17, 6.98, 0]
   devices:
   - id: tile:xxx
     name: AirPods
@@ -69,26 +68,46 @@ ESPresenseIps:
     timeout: 30
     away_timeout: 120
   roomplans:
-  - name: living
-    y1: 0.0
-    x1: 0.0
-    y2: 7.0
-    x2: 6.0
-  - name: entrance
-    y1: 7.0
-    x1: 0.0
-    y2: 10.0
-    x2: 2.0
-  - name: bath
-    y1: 7.0
-    x1: 2.0
-    y2: 10.0
-    x2: 6.0
+  - name: office
+    points:
+    - x: 0.0
+      y: 0.0
+    - x: 0.0
+      y: 3.17
+    - x: 2.56
+      y: 3.17
+    - x: 2.56
+      y: 0.0
+  - name: living_room
+    points:
+    - x: 3.17
+      y: 0.0
+    - x: 3.17
+      y: 3.33
+    - x: 9.44
+      y: 3.33
+    - x: 9.44
+      y: 0.0
+  - name: bedroom
+    points:
+    - x: 6.24
+      y: 4.19
+    - x: 6.24
+      y: 6.98
+    - x: 9.44
+      y: 6.98
+    - x: 9.44
+      y: 4.19
   - name: kitchen
-    y1: 10.0
-    x1: 0.0
-    y2: 13.5
-    x2: 5.0
+    points:
+    - x: 5.41
+      y: 3.32
+    - x: 5.41
+      y: 9.5
+    - x: 3.0
+      y: 9.5
+    - x: 0.0
+      y: 3.32
 ```
 
 ## [FloorPlan creator](https://github.com/stan69b/ESPresenseIPS-Floorplan-Creator)
