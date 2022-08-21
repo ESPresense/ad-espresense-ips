@@ -24,6 +24,7 @@ import matplotlib
 import collections
 from datetime import datetime, timedelta
 from scipy.interpolate import interp1d
+import math
 matplotlib.use("agg")
 
 
@@ -86,7 +87,8 @@ class Device():
         for device, history in self.measure_history.values():
             dist = self.get_aggragate_dist(device)
             device.draw_sensor(
-                ax, [(self.get_aggragate_dist(device), datetime.now())] if dist is not None else [])
+                ax, [(dist, datetime.now())] if dist is not None else [])
+            # device.draw_sensor(ax, history)
 
     def get_aggragate_dist(self, sensor):
         history = list(filter(lambda event: event[1] > (datetime.now(
@@ -115,6 +117,7 @@ class Device():
             sensor_hist = self.measure_history[sensor.name][1]
             if len(sensor_hist) > 0:
                 dist = self.get_aggragate_dist(sensor)
+                # dist = sensor_hist[0][0]
                 if dist is not None:
                     distances.append(dist)
                     coords.append(sensor.position)
@@ -241,8 +244,15 @@ class ESPresenseIps(hass.Hass):
 
 
 def position_solve(distances_to_station, stations_coordinates, last):
+
+    def distance(a, b):
+        return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2 + (a[2] - b[2])**2)
+
     def error(x, c, r):
-        return sum([((np.linalg.norm(x - c[i]) - r[i])/(r[i]**2)) ** 2 for i in range(len(c))])
+        return sum([
+            (abs(distance(x, c[i]) - r[i]) / r[i]**2)**2
+            for i in range(len(c))])
+        # return sum([((np.linalg.norm(x - c[i]) - r[i])/(r[i])) ** 2 for i in range(len(c))])
         # return sum([(np.linalg.norm(x - c[i]) - r[i]) for i in range(len(c))])
 
     l = len(stations_coordinates)
