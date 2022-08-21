@@ -58,7 +58,7 @@ ESPresenseIps:
     kitchen: [3.772, 7.417, 0.838]
     kitchen_2: [1.049, 4.56, 1.930]
   devices:
-  - id: iBeacon:77cb5593-201a-4b63-aea5-53541245189d-100-1
+  - id: iBeacon:xxxx
     name: Phone
     timeout: 30
     away_timeout: 120
