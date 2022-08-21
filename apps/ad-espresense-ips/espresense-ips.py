@@ -26,21 +26,6 @@ from datetime import datetime, timedelta
 from scipy.interpolate import interp1d
 matplotlib.use("agg")
 
-# state needed
-# Map of sensors Map<Sensor name, Sensor>
-#   Sensor Name
-#   Sensor Position
-#   Last N distances
-#       Distance, timestamp
-# Map of devices Map<Device id, Device>
-#   Device name
-#   Device ID
-#   Last N positions
-#     x, y, timestamp
-# list of rooms
-#   matplotPolygons of rooms
-#   shapely Polygons of rooms
-
 
 class Sensor():
     def __init__(self, name: str, position, color):
