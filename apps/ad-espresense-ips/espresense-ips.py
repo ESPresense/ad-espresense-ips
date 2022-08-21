@@ -22,7 +22,7 @@ from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 import matplotlib
 import collections
-from datetime import datetime
+from datetime import datetime, timedelta
 from scipy.interpolate import interp1d
 matplotlib.use("agg")
 
@@ -78,16 +78,16 @@ class Device():
                 sensor, collections.deque(maxlen=7))
 
     def add_position_history(self, position):
-        self.position_history.append((position, datetime.now()))
+        self.position_history.appendleft((position, datetime.now()))
 
     def add_measure_history(self, sensor: Sensor, distance):
-        self.measure_history[sensor.name][1].append((distance, datetime.now()))
+        self.measure_history[sensor.name][1].appendleft(
+            (distance, datetime.now()))
 
     def increment_measure(self):
         self.measures += 1
 
     def draw_device(self, ax):
-
         mintime = min(self.position_history, key=lambda x: x[1])[
             1].timestamp() if len(self.position_history) > 0 else 0
         maxtime = max(self.position_history, key=lambda x: x[1])[
@@ -100,7 +100,29 @@ class Device():
                        label=self.name, color=newcolor)
 
         for device, history in self.measure_history.values():
-            device.draw_sensor(ax, history)
+            dist = self.get_aggragate_dist(device)
+            device.draw_sensor(
+                ax, [(self.get_aggragate_dist(device), datetime.now())] if dist is not None else [])
+
+    def get_aggragate_dist(self, sensor):
+        history = list(filter(lambda event: event[1] > (datetime.now(
+        ) - timedelta(seconds=10)), self.measure_history[sensor.name][1]))
+        if len(history) == 0:
+            return None
+
+        mintime = min(history, key=lambda x: x[1])[
+            1].timestamp() if len(history) > 0 else 0
+        maxtime = max(history, key=lambda x: x[1])[
+            1].timestamp() if len(history) > 0 else 1
+        weight = interp1d([mintime, maxtime], [0.1, 1])
+        weights = list(map(lambda event: float(weight(
+            event[1].timestamp())), history))
+        weight_sum = sum(weights)
+        weights = list(map(lambda weight: weight/weight_sum, weights))
+        weighted_avg = 0
+        for idx, event in enumerate(history):
+            weighted_avg += weights[idx] * event[0]
+        return weighted_avg
 
     def get_distances_and_coords(self, sensors):
         distances = []
@@ -108,8 +130,10 @@ class Device():
         for sensor in sensors:
             sensor_hist = self.measure_history[sensor.name][1]
             if len(sensor_hist) > 0:
-                distances.append(sensor_hist[0][0])
-                coords.append(sensor.position)
+                dist = self.get_aggragate_dist(sensor)
+                if dist is not None:
+                    distances.append(dist)
+                    coords.append(sensor.position)
 
         return (distances, coords)
 
@@ -179,6 +203,7 @@ class ESPresenseIps(hass.Hass):
         self.mqtt.mqtt_publish(
             f"{self.args.get('images_topic', 'espresense/images')}/map", buf.getvalue())
         buf.close()
+        plt.close()
         self.log(f"Plotted")
 
     def mqtt_message(self, event_name, data, *args, **kwargs):
@@ -222,17 +247,18 @@ class ESPresenseIps(hass.Hass):
         device.add_position_history(position)
 
         point = Point(position[0], position[1])
-        for room in self.rooms:
-            if room.point_in_room(point):
-                self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{device.id}", json.dumps({"name": device.name, "x": round(position[0], 2), "y": round(
-                    position[1], 2), "z": round(position[2], 2), "fixes": len(distances), "measures": device.measures, "currentroom": room.name}))
-                self.mqtt.mqtt_publish(
-                    f"{self.args.get('ips_topic', 'espresense/ips')}/{device.id}/state", room.name)
+        room = min([(room.shapelyPoly.distance(point), room)
+                    for room in self.rooms], key=lambda x: x[0])[1]
+        if room:
+            self.mqtt.mqtt_publish(f"{self.args.get('ips_topic', 'espresense/ips')}/{device.id}", json.dumps({"name": device.name, "x": round(position[0], 2), "y": round(
+                position[1], 2), "z": round(position[2], 2), "fixes": len(distances), "measures": device.measures, "currentroom": room.name}))
+            self.mqtt.mqtt_publish(
+                f"{self.args.get('ips_topic', 'espresense/ips')}/{device.id}/state", room.name)
 
 
 def position_solve(distances_to_station, stations_coordinates, last):
     def error(x, c, r):
-        return sum([(np.linalg.norm(x - c[i]) - r[i]) ** 2 for i in range(len(c))])
+        return sum([((np.linalg.norm(x - c[i]) - r[i])/(r[i]**2)) ** 2 for i in range(len(c))])
         # return sum([(np.linalg.norm(x - c[i]) - r[i]) for i in range(len(c))])
 
     l = len(stations_coordinates)
