@@ -43,7 +43,7 @@ matplotlib.use("agg")
 
 
 class Sensor():
-    def __init__(self, name: str, position: tuple[int, int, int], color):
+    def __init__(self, name: str, position, color):
         self.name = name
         self.position = position
         self.color = matplotlib.colors.to_rgba(color)
@@ -64,15 +64,14 @@ class Sensor():
 
 
 class Device():
-    def __init__(self, name, id, color, sensors: list[Sensor]):
+    def __init__(self, name, id, color, sensors):
         self.name = name
         self.id = id
         self.color = matplotlib.colors.to_rgba(color)
         self.position_history = collections.deque(maxlen=5)
         self.measures = 0
         # map from Sensor name to (Sensor, List<(distance, datetime)>)
-        self.measure_history: dict[str, tuple[Sensor,
-                                              collections.deque[tuple[any, datetime]]]] = {}
+        self.measure_history = {}
         for sensor in sensors:
             self.measure_history[sensor.name] = (
                 sensor, collections.deque(maxlen=7))
@@ -80,7 +79,7 @@ class Device():
     def add_position_history(self, position):
         self.position_history.appendleft((position, datetime.now()))
 
-    def add_measure_history(self, sensor: Sensor, distance):
+    def add_measure_history(self, sensor, distance):
         self.measure_history[sensor.name][1].appendleft(
             (distance, datetime.now()))
 
@@ -163,7 +162,7 @@ class ESPresenseIps(hass.Hass):
 
         colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         color_idx = 0
-        self.sensors: dict[str, Sensor] = {}
+        self.sensors = {}
         for sensor in self.args["rooms"]:
             self.sensors[sensor] = Sensor(
                 sensor, self.args["rooms"][sensor], colors[color_idx])
@@ -175,7 +174,7 @@ class ESPresenseIps(hass.Hass):
             self.mqtt.listen_event(
                 self.mqtt_message, "MQTT_MESSAGE", topic=topic)
 
-        self.devices: dict[str, Device] = {}
+        self.devices = {}
         for device in self.args["devices"]:
             self.devices[device["id"]] = Device(device["name"],
                                                 device["id"], colors[color_idx], self.sensors.values())
