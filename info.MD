@@ -7,6 +7,7 @@ ESPresenseIps:
   pluggins:
     - HASS
     - MQTT
+  draw_interval: 5
   rooms:
     garage: [0, 8, 0.4]
     office: [5, 1.5, 0.5]
@@ -29,3 +30,4 @@ key | optional | type | default | description
 `location_topic`| True | string | `espresense/location` | suffix for location
 `rooms`| False | dict | | names and coordinates of each room
 `devices`| False | array dict | | All the devices you want to attempt to locate
+`draw_interval`| True | int | | The time to wait between drawing the scene. If not included the drawing is disabled
