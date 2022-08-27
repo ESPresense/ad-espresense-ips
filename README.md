@@ -49,46 +49,81 @@ ESPresenseIps:
   pluggins:
     - HASS
     - MQTT
+  draw_interval: 3
   rooms:
-    garage: [0, 8, 0.4]
-    office: [5, 1.5, 0.5]
-    family: [0, 0, 0]
-    kitchen: [8, 6, 0.5]
-    dining: [16, 0, 0.5]
+    office: [0, 0.864, 0.965]
+    living_room: [9.83, 0.584, 1.224]
+    living_room_2: [3.175, 1.499, 1.727]
+    bedroom: [9.398, 5.817, 1.32]
+    kitchen: [3.772, 7.417, 0.838]
+    kitchen_2: [1.049, 4.56, 1.930]
   devices:
-  - id: tile:xxx
-    name: AirPods
-    timeout: 30
-    away_timeout: 120
-  - id: tile:xxx
-    name: Wallet
-    timeout: 30
-    away_timeout: 120
-  - id: apple:1005:9-26
-    name: Watch
+  - id: iBeacon:xxxx
+    name: Phone
     timeout: 30
     away_timeout: 120
   roomplans:
-  - name: living
-    y1: 0.0
-    x1: 0.0
-    y2: 7.0
-    x2: 6.0
-  - name: entrance
-    y1: 7.0
-    x1: 0.0
-    y2: 10.0
-    x2: 2.0
-  - name: bath
-    y1: 7.0
-    x1: 2.0
-    y2: 10.0
-    x2: 6.0
+  - name: office
+    points:
+    - x: 0.0
+      y: 0.0
+    - x: 3.175
+      y: 0
+    - x: 3.175
+      y: 2.225
+    - x: 1.87
+      y: 3.658
+    - x: 0
+      y: 1.956
+  - name: living_room
+    points:
+    - x: 3.175
+      y: 0
+    - x: 9.449
+      y: 0
+    - x: 9.449
+      y: 3.327
+    - x: 2.171
+      y: 3.327
+    - x: 3.175
+      y: 2.225
+  - name: bedroom
+    points:
+    - x: 5.41
+      y: 6.985
+    - x: 5.41
+      y: 6.121
+    - x: 6.248
+      y: 6.121
+    - x: 6.248
+      y: 4.191
+    - x: 9.398
+      y: 4.191
+    - x: 9.398
+      y: 6.985
   - name: kitchen
-    y1: 10.0
-    x1: 0.0
-    y2: 13.5
-    x2: 5.0
+    points:
+    - x: 1.081
+      y: 2.94
+    - x: 1.87
+      y: 3.658
+    - x: 2.171
+      y: 3.327
+    - x: 5.41
+      y: 3.327
+    - x: 5.41
+      y: 6.985
+    - x: 4.166
+      y: 6.985
+    - x: 2.917
+      y: 8.356
+    - x: 0.006
+      y: 5.706
+    - x: 1.169
+      y: 4.428
+    - x: 0.38
+      y: 3.71
+
 ```
 
 ## [FloorPlan creator](https://github.com/stan69b/ESPresenseIPS-Floorplan-Creator)
