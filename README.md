@@ -9,12 +9,7 @@ This requires at least 3 ESPresense nodes that can get a "fix" on the particular
 ## Installation
 
 For this to work you need to add this to your appdaemon Add-On config:
-```yaml
-init_commands:
-  - apk add --update python3 python3-dev py3-numpy py3-scipy
-python_packages: []
-system_packages: []
-```
+![image](https://user-images.githubusercontent.com/1491145/187983602-76d77f8b-a55c-4bcb-8d8f-a001f51b3dcc.png)
 
 You need to have both MQTT and HASS added to `appdaemon.yaml`:
 
