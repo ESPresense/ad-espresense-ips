@@ -1,3 +1,5 @@
+## ATTENTION: This has been replaced by this: https://github.com/ESPresense/ESPresense-companion
+
 # ESPresense - Ips Solver
 
 Appdaemon app that attempts to solve indoor position (x,y,z) with multiple ESPresense stations using multilateralization.
